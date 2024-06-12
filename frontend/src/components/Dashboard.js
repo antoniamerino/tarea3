@@ -20,6 +20,7 @@ function Dashboard() {
   const handleUpdateData = async () => {
     setLoading(true);
     try {
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.get(`${BASE_URL}/api/data`);
       alert('Datos actualizados correctamente');
     } catch (error) {
