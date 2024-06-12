@@ -1,48 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const cron = require('node-cron');
 const fs = require('fs');
 const { extractData } = require('./dataService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configuración de CORS para permitir solicitudes desde cualquier origen
-const corsOptions = {
-  origin: '*', // Permitir todas las solicitudes de origen cruzado
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
-
-app.use(cors(corsOptions));
+// Permitir CORS para todas las rutas y orígenes
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
-
-// Función para inicializar y extraer datos al iniciar el servidor
-async function init() {
-  console.log('Extrayendo datos al iniciar el servidor...');
-  try {
-    await extractData();
-    console.log('Datos extraídos y transformados correctamente');
-  } catch (error) {
-    console.error('Error al extraer datos:', error);
-  }
-}
-
-init();
-
-// Programar la tarea para que se ejecute cada 3 minutos
-cron.schedule('*/3 * * * *', async () => {
-  console.log('Ejecutando tarea programada para extraer datos...');
-  try {
-    await extractData();
-    console.log('Datos extraídos y transformados correctamente');
-  } catch (error) {
-    console.error('Error al extraer datos en la tarea programada:', error);
-  }
-});
 
 app.get('/api/data', async (req, res) => {
   console.log('Petición recibida para /api/data');
@@ -348,32 +316,32 @@ app.get('/api/city-purchases', (req, res) => {
     }
   });  
 
-app.get('/api/sales-over-time', (req, res) => {
-  const ordersPath = path.join(__dirname, 'data', 'orders.json');
-  if (fs.existsSync(ordersPath)) {
-    const orders = JSON.parse(fs.readFileSync(ordersPath, 'utf-8'));
-
-    const salesOverTime = orders.reduce((acc, order) => {
-      const date = new Date(order.timestamp).toISOString().split('T')[0]; // Formato YYYY-MM-DD
-      if (!acc[date]) {
-        acc[date] = 0;
-      }
-      acc[date] += 1;
-      return acc;
-    }, {});
-
-    const salesData = Object.entries(salesOverTime)
-      .map(([date, count]) => ({
-        timestamp: date,
-        count
-      }))
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-    res.json(salesData);
-  } else {
-    res.status(404).send('Archivo de órdenes no encontrado');
-  }
-});  
+  app.get('/api/sales-over-time', (req, res) => {
+    const ordersPath = path.join(__dirname, 'data', 'orders.json');
+    if (fs.existsSync(ordersPath)) {
+      const orders = JSON.parse(fs.readFileSync(ordersPath, 'utf-8'));
+  
+      const salesOverTime = orders.reduce((acc, order) => {
+        const date = new Date(order.timestamp).toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        if (!acc[date]) {
+          acc[date] = 0;
+        }
+        acc[date] += 1;
+        return acc;
+      }, {});
+  
+      const salesData = Object.entries(salesOverTime)
+        .map(([date, count]) => ({
+          timestamp: date,
+          count
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  
+      res.json(salesData);
+    } else {
+      res.status(404).send('Archivo de órdenes no encontrado');
+    }
+  });  
   
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));

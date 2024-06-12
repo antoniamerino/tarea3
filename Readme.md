@@ -30,11 +30,11 @@ Este proyecto es un dashboard de análisis de compras que utiliza React para el 
    - Los datos transformados y limpios se almacenan en archivos JSON (`products.json` y `orders.json`) en un directorio específico de datos.
    - Antes de procesar nuevos datos, se limpia el directorio de datos para asegurar que solo se almacenen datos actualizados y válidos.
 
-### Actualización Automática de Datos
+### Actualización de Datos Manual
 
-Para asegurar que los datos mostrados en el dashboard estén siempre actualizados, se ha implementado una tarea programada utilizando `node-cron`. Esta tarea se ejecuta automáticamente cada 10 minutos y llama al proceso ETL para extraer, transformar y cargar los datos nuevamente. Este enfoque garantiza que cualquier cambio en los datos subyacentes se refleje en el dashboard en tiempo casi real, proporcionando a los usuarios la información más actualizada posible. 
+Para permitir a los usuarios actualizar los datos manualmente en el dashboard, se ha implementado un botón "Actualizar Datos" que está conectado con el endpoint `/api/data`. Esto proporciona una manera fácil y directa para que los usuarios soliciten una actualización de los datos en cualquier momento.
 
-La expresión cron utilizada para esta tarea es `*/10 * * * *`, lo que indica que la tarea debe ejecutarse cada 10 minutos. Esta frecuencia puede ajustarse según las necesidades cambiando la expresión cron en el código.
+Cuando el usuario hace clic en el botón "Actualizar Datos", se muestra una superposición borrosa que indica que la actualización está en progreso. Una vez completada la actualización, la superposición desaparece y los datos actualizados se muestran en el dashboard.
 
 ## Gráficos del Dashboard
 

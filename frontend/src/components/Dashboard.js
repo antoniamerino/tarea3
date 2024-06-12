@@ -1,5 +1,6 @@
-import React from 'react';
-import { Container } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, Button, Box, Typography, CircularProgress, Backdrop } from '@mui/material';
+import axios from 'axios';
 import MostPurchasedProducts from './MostPurchasedProducts';
 import MostPopularCategories from './MostPopularCategories';
 import MostFrequentCustomers from './MostFrequentCustomers';
@@ -11,11 +12,37 @@ import SalesOverTime from './SalesOverTime';
 import OrderCancellationRate from './OrderCancellationRate';
 import AverageProductWeight from './AverageProductWeight';
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 function Dashboard() {
+  const [loading, setLoading] = useState(false);
+
+  const handleUpdateData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${BASE_URL}/api/data`);
+      alert('Datos actualizados correctamente');
+    } catch (error) {
+      console.error('Error al actualizar datos:', error);
+      alert('Error al actualizar datos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container>
-      <h1>Dashboard</h1>
-      <h3>Si no aparece nada, espere 3 minutos y recargue que los datos se estan cargando</h3>
+      <Typography variant="h1" align="center" gutterBottom>
+        Dashboard
+      </Typography>
+      <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
+        <Button variant="contained" color="primary" onClick={handleUpdateData} sx={{ mr: 2 }}>
+          Actualizar Datos
+        </Button>
+        <Typography variant="body1">
+          Haga clic en el botón para actualizar la información.
+        </Typography>
+      </Box>
       <MostPurchasedProducts />
       <MostPopularCategories />
       <MostFrequentCustomers />
@@ -26,6 +53,16 @@ function Dashboard() {
       <OrderCancellationRate />
       <AverageProductWeight />
       <SalesOverTime />
+
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Esperando a la actualización de los datos...
+        </Typography>
+      </Backdrop>
     </Container>
   );
 }
